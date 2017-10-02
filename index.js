@@ -9000,3 +9000,65 @@ const issues = [
     "url": "https://api.github.com/repos/learn-co-curriculum/js-donut-lab/issues/2"
   }
 ];
+
+const issuesWithUpdatedApiUrl = issues.map((issue) => {
+  let new_url = issue.url
+  let parser = document.createElement('a')
+  parser.href = new_url
+  if (parser.hostname == 'api.github.com') {
+    parser.hostname = 'api-v2.github.com'
+    new_url = parser.href
+  }
+  return {
+    body: issue.body,
+    created_at: issue.created_at,
+    comments_count: issue.comments_count,
+    id: issue.id,
+    number: issue.number,
+    state: issue.state,
+    url: new_url
+  }
+})
+
+const commentCountAcrossIssues = issues.map((issue) => {
+  return issue.comments_count
+}).reduce((sum, value) => {
+  return sum + value
+})
+
+const openIssues = issues.reduce((openIssues, issue) => {
+  if (issue.state === 'open') {
+    return [...openIssues, issue]
+  }
+  return openIssues
+}, [])
+
+const botPhrase = "This pull request has been automatically created by learn.co."
+const nonAutomaticIssues  = issues.reduce((nonAutomaticIssues, issue) => {
+  if (issue.body != botPhrase) {
+    return [...nonAutomaticIssues, issue]
+  }
+  return nonAutomaticIssues
+}, [])
+
+const tableBody = document.getElementById('results')
+tableBody.innerHTML = nonAutomaticIssues.map((issue) => {
+  return (`<tr>
+    <td>${issue.body}</td>
+    <td>${issue.created_at}</td>
+    <td>${issue.status}</td>
+    </tr>`)
+}).join('')
+
+
+// NOTE Found at https://gist.github.com/jlong/2428561
+// var parser = document.createElement('a');
+// parser.href = "http://example.com:3000/pathname/?search=test#hash";
+//
+// parser.protocol; // => "http:"
+// parser.hostname; // => "example.com"
+// parser.port;     // => "3000"
+// parser.pathname; // => "/pathname/"
+// parser.search;   // => "?search=test"
+// parser.hash;     // => "#hash"
+// parser.host;     // => "example.com:3000"
